@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analiză Meci AI</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; line-height: 1.6; }
+        textarea { width: 100%; height: 200px; margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { display: block; width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background-color: #0056b3; }
+        #rezultat { border: 1px solid #ccc; background-color: #f9f9f9; padding: 15px; margin-top: 20px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; }
+        #loading { display: none; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Generator de Analize Meci AI</h1>
+    <p>Introdu datele meciului mai jos și apasă "Generează analiză".</p>
+    <textarea id="dateMeci" placeholder="Exemplu:
+Echipa gazdă: Vitoria
+Echipa oaspete: Trelleborg
+Istoric direct (H2H): 2 victorii Vitoria, 1 Trelleborg, 2 egaluri.
+Forma Vitoria (ultimele 5): V, V, E, I, V
+Forma Trelleborg (ultimele 5): I, I, E, V, I
+Clasament: Vitoria locul 5, Trelleborg locul 12.
+Jucători cheie: Vitoria - Lundstrom și Blomqvist. Trelleborg - Anderson și Sandberg."></textarea>
+    <button onclick="genereazaAnaliza()">Generează Analiză</button>
+    <div id="loading">Se generează analiza, te rog așteaptă...</div>
+    <div id="rezultat">
+        Aici va apărea analiza generată.
+    </div>
+    <script>
+        async function genereazaAnaliza() {
+            const dateMeci = document.getElementById('dateMeci').value;
+            const rezultatDiv = document.getElementById('rezultat');
+            const loadingDiv = document.getElementById('loading');
+            
+            rezultatDiv.innerHTML = '';
+            loadingDiv.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/analiza', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date: dateMeci }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Eroare la generarea analizei: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                rezultatDiv.innerHTML = data.analiza;
+            } catch (error) {
+                rezultatDiv.innerHTML = `<span style="color:red;">A apărut o eroare:</span> ${error.message}`;
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
